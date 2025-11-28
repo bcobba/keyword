@@ -1,0 +1,154 @@
+import os
+import re
+
+from flask import Flask, render_template, request, jsonify
+from werkzeug.utils import secure_filename
+
+import PyPDF2          # pip install PyPDF2
+import docx            # pip install python-docx
+
+app = Flask(__name__)
+
+# --- Config ---
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {"pdf", "docx"}
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB per upload
+
+
+# --- Helpers ---
+
+def allowed_file(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def extract_text_from_pdf(path: str) -> str:
+    text = []
+    with open(path, "rb") as f:
+        reader = PyPDF2.PdfReader(f)
+        for page in reader.pages:
+            page_text = page.extract_text() or ""
+            text.append(page_text)
+    return "\n".join(text)
+
+
+def extract_text_from_docx(path: str) -> str:
+    document = docx.Document(path)
+    paragraphs = [p.text for p in document.paragraphs]
+    return "\n".join(paragraphs)
+
+
+def extract_text(path: str) -> str:
+    ext = os.path.splitext(path)[1].lower()
+    if ext == ".pdf":
+        return extract_text_from_pdf(path)
+    elif ext == ".docx":
+        return extract_text_from_docx(path)
+    else:
+        return ""
+
+
+def find_keyword_sentences(text: str, keyword: str):
+    """
+    Split text into sentences and return those containing the keyword (case-insensitive),
+    with the keyword wrapped in <mark>...</mark>.
+    """
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text)
+
+    # Rough sentence split
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+
+    pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+    matches = []
+
+    for s in sentences:
+        if pattern.search(s):
+            highlighted = pattern.sub(lambda m: f"<mark>{m.group(0)}</mark>", s)
+            matches.append(highlighted.strip())
+
+    return matches
+
+
+# --- Routes ---
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/upload", methods=["POST"])
+def upload_files():
+    if "files" not in request.files:
+        return jsonify({"error": "No files part in the request"}), 400
+
+    files = request.files.getlist("files")
+    saved_files = []
+    rejected_files = []
+
+    for file in files:
+        if file.filename == "":
+            continue
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            dest = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(dest)
+            saved_files.append(filename)
+        else:
+            rejected_files.append(file.filename)
+
+    return jsonify({
+        "ok": True,
+        "saved": saved_files,
+        "rejected": rejected_files
+    })
+
+
+@app.route("/search", methods=["POST"])
+def search():
+    data = request.get_json(silent=True) or {}
+    query = (data.get("query") or "").strip()
+
+    if not query:
+        return jsonify({"error": "Empty search query"}), 400
+
+    results = []
+
+    # Loop through all files in uploads
+    for filename in os.listdir(app.config["UPLOAD_FOLDER"]):
+        if not allowed_file(filename):
+            continue
+
+        path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+        try:
+            text = extract_text(path)
+        except Exception as e:
+            # If a file cannot be read, skip it but mention in results if you want
+            print(f"Error reading {filename}: {e}")
+            continue
+
+        if not text.strip():
+            continue
+
+        snippets = find_keyword_sentences(text, query)
+        if snippets:
+            results.append({
+                "filename": filename,
+                "snippets": snippets
+            })
+
+    return jsonify({
+        "query": query,
+        "results": results
+    })
+
+
+if __name__ == "__main__":
+    # Run the app
+    app.run(debug=True)
