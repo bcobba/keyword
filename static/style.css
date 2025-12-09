@@ -242,3 +242,32 @@ mark {
     text-align: center;
   }
 }
+
+.download-buttons {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.pdf-btn {
+  padding: 10px 18px;
+  background: #fbf7f0;
+  color: #555555;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1px solid #cdc9c3;
+  transition: background 0.2s ease, transform 0.05s ease;
+}
+
+.pdf-btn:hover {
+  background: #c3d2cb;
+  transform: translateY(-1px);
+}
+
+.pdf-btn:active {
+  transform: translateY(0);
+}

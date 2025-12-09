@@ -4,6 +4,7 @@ import unicodedata
 
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
+from flask import send_from_directory
 
 import PyPDF2          # pip install PyPDF2
 import docx            # pip install python-docx
@@ -20,6 +21,9 @@ ALLOWED_EXTENSIONS = {"pdf", "docx"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB per upload
 
+@app.route("/download/<path:filename>")
+def download_file(filename):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename, as_attachment=True)
 
 # --- Helpers ---
 

@@ -9,10 +9,24 @@
 </head>
 <body>
   <div class="page-wrapper">
-    <header class="header">
-      <h1>Demo - Libre Tránsito</h1>
-      <p>Búsqueda de Palabras Clave</p>
-    </header>
+  <header class="header">
+    <h1>Demo - Libre Tránsito</h1>
+    <p>Búsqueda de Palabras Clave</p>
+
+    <div class="download-buttons">
+      <a class="pdf-btn"
+        href="{{ url_for('download_file', filename='Depositos-Vehiculares.pdf') }}"
+        download>
+        Descargar Depósitos Vehiculares
+      </a>
+
+      <a class="pdf-btn"
+        href="{{ url_for('download_file', filename='reglamento-de-transito-cdmx.pdf') }}"
+        download>
+        Descargar Reglamento de Tránsito CDMX
+      </a>
+    </div>
+  </header>
 
     <!--<section class="card">
       <h2>Subir archivos</h2>
