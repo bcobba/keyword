@@ -271,3 +271,23 @@ mark {
 .pdf-btn:active {
   transform: translateY(0);
 }
+
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.pdf-icon {
+  font-size: 1.2rem;
+  color: #b91c1c; /* deep red for PDF */
+}
+
+.pdf-icon {
+  color: #555555;
+}
+
+.pdf-btn:hover .pdf-icon {
+  color: #9c1414;
+}

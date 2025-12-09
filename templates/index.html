@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
   <div class="page-wrapper">
@@ -17,13 +18,15 @@
       <a class="pdf-btn"
         href="{{ url_for('download_file', filename='Depositos-Vehiculares.pdf') }}"
         download>
-        Descargar Depósitos Vehiculares
+        <i class="bi bi-file-earmark-pdf-fill pdf-icon"></i>
+        Depósitos Vehiculares
       </a>
 
       <a class="pdf-btn"
         href="{{ url_for('download_file', filename='reglamento-de-transito-cdmx.pdf') }}"
         download>
-        Descargar Reglamento de Tránsito CDMX
+        <i class="bi bi-file-earmark-pdf-fill pdf-icon"></i>
+        Reglamento de Tránsito CDMX
       </a>
     </div>
   </header>
