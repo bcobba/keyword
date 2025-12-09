@@ -291,3 +291,37 @@ mark {
 .pdf-btn:hover .pdf-icon {
   color: #9c1414;
 }
+
+.pdf-select {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pdf-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-accent);
+  background: #fbf7f0;
+  transition: background 0.2s ease, transform 0.05s ease;
+}
+
+.pdf-option:hover {
+  background: #d9e4dd;
+}
+
+.pdf-option input[type="radio"] {
+  transform: scale(1.2);
+  margin-right: 4px;
+}
+
+.pdf-option i {
+  font-size: 1.1rem;
+  color: #b91c1c;
+}

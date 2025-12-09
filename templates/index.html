@@ -30,19 +30,12 @@
       </a>
     </div>
   </header>
-
-    <!--<section class="card">
-      <h2>Subir archivos</h2>
-      <form id="upload-form">
-        <input type="file" id="file-input" name="files" multiple accept=".pdf,.docx" />
-        <button type="submit">Subir</button>
-      </form>
-      <div id="upload-status" class="status"></div>
-    </section>-->
-
+  
     <section class="card">
       <h2>Buscar Palabra Clave</h2>
+
       <form id="search-form">
+
         <input
           type="text"
           id="search-input"
@@ -50,8 +43,27 @@
           placeholder="Escribe una palabra clave (ej. montos, contratos, etc.)"
           required
         />
+
+        <div class="pdf-select">
+          <label class="pdf-option">
+            <input type="radio" name="pdfChoice" value="Depositos-Vehiculares.pdf" required>
+            <i class="bi bi-file-earmark-pdf-fill"></i> Depósitos Vehiculares
+          </label>
+
+          <label class="pdf-option">
+            <input type="radio" name="pdfChoice" value="reglamento-de-transito-cdmx.pdf">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Reglamento de Tránsito CDMX
+          </label>
+
+          <label class="pdf-option">
+            <input type="radio" name="pdfChoice" value="all">
+            <i class="bi bi-files"></i> Buscar en ambos
+          </label>
+        </div>
+
         <button type="submit">Buscar</button>
       </form>
+
       <div id="search-status" class="status"></div>
     </section>
 

@@ -135,6 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const query = searchInput.value.trim();
       if (!query) return;
 
+      // 👇 NUEVO: leer qué PDF eligió el usuario
+      const pdfChoice =
+        document.querySelector('input[name="pdfChoice"]:checked')?.value || "all";
+
       searchStatus.textContent = `Buscando "${query}"...`;
       searchStatus.classList.remove("error");
       resultsContainer.innerHTML = "";
@@ -144,7 +148,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
+          body: JSON.stringify({
+            query,
+            pdfChoice,   // 👈 se manda al backend
+          }),
         });
 
         if (!res.ok) {
@@ -158,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         const results = data.results || [];
 
-        // Flatten: one item per snippet, including filename
+        // Aplanar resultados: un ítem por snippet
         flatResults = [];
         results.forEach((fileResult) => {
           (fileResult.snippets || []).forEach((snippet) => {

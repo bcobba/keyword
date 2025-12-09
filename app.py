@@ -145,30 +145,31 @@ def upload_files():
 def search():
     data = request.get_json(silent=True) or {}
     query = (data.get("query") or "").strip()
+    pdf_choice = data.get("pdfChoice", "all")  # NEW
 
     if not query:
         return jsonify({"error": "Empty search query"}), 400
 
     results = []
 
-    # Loop through all files in uploads
+    # Loop through all files
     for filename in os.listdir(app.config["UPLOAD_FOLDER"]):
         if not allowed_file(filename):
+            continue
+
+        # Filter by user's choice
+        if pdf_choice != "all" and filename != pdf_choice:
             continue
 
         path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
         try:
             text = extract_text(path)
-        except Exception as e:
-            # If a file cannot be read, skip it but mention in results if you want
-            print(f"Error reading {filename}: {e}")
-            continue
-
-        if not text.strip():
+        except:
             continue
 
         snippets = find_keyword_sentences(text, query)
+
         if snippets:
             results.append({
                 "filename": filename,
@@ -179,7 +180,6 @@ def search():
         "query": query,
         "results": results
     })
-
 
 if __name__ == "__main__":
     # Run the app
