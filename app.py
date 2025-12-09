@@ -1,5 +1,6 @@
 import os
 import re
+import unicodedata
 
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
@@ -52,10 +53,20 @@ def extract_text(path: str) -> str:
         return ""
 
 
+def strip_accents(s: str) -> str:
+    """Remove accents/diacritics from a string."""
+    if not s:
+        return ""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", s)
+        if unicodedata.category(c) != "Mn"
+    )
+
+
 def find_keyword_sentences(text: str, keyword: str):
     """
-    Split text into sentences and return those containing the keyword (case-insensitive),
-    with the keyword wrapped in <mark>...</mark>.
+    Split text into sentences and return those containing the keyword,
+    ignoring accents and case. Keyword highlighting is case-insensitive.
     """
     # Normalize whitespace
     text = re.sub(r"\s+", " ", text)
@@ -63,16 +74,33 @@ def find_keyword_sentences(text: str, keyword: str):
     # Rough sentence split
     sentences = re.split(r"(?<=[.!?])\s+", text)
 
-    pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+    norm_keyword = strip_accents(keyword).lower()
+    if not norm_keyword:
+        return []
+
+    # For highlighting (case-insensitive; accent-sensitive)
+    pattern_highlight = re.compile(re.escape(keyword), re.IGNORECASE)
+
     matches = []
 
     for s in sentences:
-        if pattern.search(s):
-            highlighted = pattern.sub(lambda m: f"<mark>{m.group(0)}</mark>", s)
+        norm_s = strip_accents(s).lower()
+
+        # Accent & case-insensitive match
+        if norm_keyword in norm_s:
+            # Try to highlight exact occurrences of the typed keyword
+            if pattern_highlight.search(s):
+                highlighted = pattern_highlight.sub(
+                    lambda m: f"<mark>{m.group(0)}</mark>",
+                    s
+                )
+            else:
+                # If we can't find the exact form, return the sentence as-is
+                highlighted = s
+
             matches.append(highlighted.strip())
 
     return matches
-
 
 # --- Routes ---
 
